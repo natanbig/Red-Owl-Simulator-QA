@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace RedOwl_Simulator
 {
-    class Program
+    public class Program
     {
         public static Random rnd;
         static string FileLocation = String.Format(@"{0}\RO_UserRiskLevel.txt", System.IO.Directory.GetCurrentDirectory());  //@"C:\Users\natan.radostin\Source\Repos\Project for testers\KafkaDBImporter\KafkaDBImporter\bin\Debug\RO_UserRiskLevel.txt";
@@ -20,8 +20,8 @@ namespace RedOwl_Simulator
         {
             Console.ReadLine();
 
-            if (args[0] == "-?")
-                Console.WriteLine("\n\nUsing:KafkaDBImporter.exe [SQL IP] [SQL USER] [ [Password] [Kafka IP] [Kafka Topic] [Number of users should be downloaded from SQL] \n\n ");
+            if (args[0] == "-?")                          //      arg[0]    arg[1]       arg[2]                arg[3]                     arg[4]         arg[5]        arg[6]               
+                Console.WriteLine("\n\nUsing:KafkaDBImporter.exe [SQL IP] [SQL USER] [ [Password] [EXTERNAL/INTERNAL/All users to scan] [Kafka IP]  [Kafka Topic] [Number of users should be downloaded from SQL/Default all users will be pulled] \n\n ");
             else
             {
                 string connectionTypeToSql = String.Format(@"Data Source={0},1433;Network Library=DBMSSOCN;Initial Catalog=wbsn-data-security;User ID={1};Password={2}", (args[0]), args[1], args[2]);
@@ -33,21 +33,27 @@ namespace RedOwl_Simulator
                 List<DataJson> testData = new List<DataJson>();
                 List<RiskScore> riscore = new List<RiskScore>();
                 riscore.Add(new RiskScore("_global_", 0.81));
-                int user_limit = Convert.ToInt32(args[5]);
-                rnd = new Random();
-                while (reader.Read())
-                {
+                int user_limit = Convert.ToInt32(args[6]);
+                
 
-                    Console.WriteLine("{0}", reader.GetString(0));
-                    testData.Add(new DataJson(reader.GetString(0),
-                    DateTime.Now.ToString("MM-dd-yyyyThh:mm:ssZ"),
-                    Convert.ToInt32(rnd.NextDouble() * 5), riscore));
-                    user_limit--;
-                    if (user_limit == 0)
-                    {
+                switch (args[3])
+                {
+                    case "EXTERNAL":
+                        DBImporterHelper.ScanOnlyExternalUsers(testData, reader, riscore, user_limit);
                         break;
-                    }
+
+                    case "INTERNAL":
+                        DBImporterHelper.ScanOnlyInternalUsers(testData, reader, riscore, user_limit);
+                        break;
+
+                    default:
+                        DBImporterHelper.ScanAllUsers(testData, reader, riscore, user_limit);
+                        break;
+
                 }
+
+
+
                 Console.WriteLine("\n\n\n\n\n\n\t\t\t\t\t\t****************************WAIT FOR TRANFERING COMLETE****************************\n\n\n\n\n\n\t\t\t\t\t\t");
                 reader.Close();
                 connection1.Close();
@@ -56,7 +62,7 @@ namespace RedOwl_Simulator
 
 
                 writer.Close();
-                string ip_Kafka = String.Format("http://{0}", args[3]);
+                string ip_Kafka = String.Format("http://{0}", args[4]);
                 var configKafka = new KafkaOptions(new Uri(ip_Kafka));
                 var route = new BrokerRouter(configKafka);
 
@@ -64,7 +70,7 @@ namespace RedOwl_Simulator
                 string jsonFile = File.ReadAllText(FileLocation);
 
                 JArray jsonArray = JArray.Parse(jsonFile);
-                string topic = args[4];
+                string topic = args[5];
                 dynamic data;
                 for (int i = 0; i < jsonArray.Count; i++)
                 {

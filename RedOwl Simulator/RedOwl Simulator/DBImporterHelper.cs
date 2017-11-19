@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data.SqlClient;
 
 namespace RedOwl_Simulator
@@ -17,7 +14,7 @@ namespace RedOwl_Simulator
             
             while (reader.Read())
             {
-                if (reader.GetString(1) == "EXTERNAL")
+                if ((reader.GetString(1) == "EXTERNAL")&&(reader.GetString(3)!= "DELETED"))
                 {
                     ReadDB(testData, reader, riscore, rnd);
                     user_limit--;
@@ -33,12 +30,12 @@ namespace RedOwl_Simulator
 
         public static void ScanOnlyInternalUsers(List<DataJson> testData, SqlDataReader reader, List<RiskScore> riscore, int user_limit)
         {
-            Random rnd = new Random();
+             Random rnd = new Random();
 
             while (reader.Read())
             {
 
-                if (reader.GetString(1) == "INTERNAL")
+                if ((reader.GetString(1) == "INTERNAL") && (reader.GetString(3) != "DELETED"))
                 {
                     ReadDB(testData, reader, riscore, rnd);
                     user_limit--;
@@ -56,12 +53,14 @@ namespace RedOwl_Simulator
 
             while (reader.Read())
             {
-
-                ReadDB(testData, reader, riscore, rnd);
-                user_limit--;
-                if (user_limit == 0)
+                if (reader.GetString(3) != "DELETED")
                 {
-                    break;
+                    ReadDB(testData, reader, riscore, rnd);
+                    user_limit--;
+                    if (user_limit == 0)
+                    {
+                        break;
+                    }
                 }
             }
             
@@ -77,6 +76,6 @@ namespace RedOwl_Simulator
 
         }
 
-
+        
     }
 }

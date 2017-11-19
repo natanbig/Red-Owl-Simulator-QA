@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="DataJson.cs" />
     <Compile Include="DBImporterHelper.cs" />
+    <Compile Include="KafkaClientHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

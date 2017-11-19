@@ -82,6 +82,8 @@ namespace RedOwl_Simulator
 
         }
 
+        
+
         [JsonProperty("risk_score"),]
         public string PurpleRiskScore { get; set; }
 

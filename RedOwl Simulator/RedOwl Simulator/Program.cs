@@ -19,23 +19,17 @@ namespace RedOwl_Simulator
         static SqlDataReader reader;
         private static string connectionTypeToSql;
 
-        /// <summary>
-        
-        /// </summary>
+
  
         static void Main(string[] args)
         {
             StreamWriter writer;
-            List<DataJson> testData;
-            List<RiskScore> riscore;
-            Console.ReadLine();
+            List<DataJson> testData;          
             writer = new StreamWriter(FileLocation);
             testData = new List<DataJson>();
-            riscore = new List<RiskScore>();
-            riscore.Add(new RiskScore("_global_", 0.81));
 
             if (args[0] == "-?")                          //      arg[0]    arg[1]       arg[2]                arg[3]                     arg[4]                    arg[5]               
-                Console.WriteLine("\n\nUsing:RedOwl Simulator.exe [SQL IP] [SQL USER] [ [Password] [EXTERNAL/INTERNAL/All users to scan] [Kafka IP:port]  [Number of users should be downloaded from SQL/Default all users will be pulled] \n\n ");
+                Console.WriteLine("\n\nUsing:RedOwl Simulator.exe [SQL IP] [SQL USER] [ [Password] [EXTERNAL/INTERNAL/All users to scan] [Kafka IP:port]  [Number of users should be downloaded from SQL] \n\n ");
             else if (args[0] == "manual")
 
             {
@@ -44,7 +38,7 @@ namespace RedOwl_Simulator
                 string conectionSQL = Console.ReadLine();
                 string[] array = conectionSQL.Split(' ');
                 
-                Console.Write("Enter numbre of user IDs you want to send to Kafka");
+                Console.Write("Enter number of user IDs you want to send to Kafka  ");
                 int count = Convert.ToInt16(Console.ReadLine());
                 string[] userData;
                 userData = new string[count];
@@ -62,7 +56,7 @@ namespace RedOwl_Simulator
 
                 }
                 StartSQLConnection();
-                DBImporterHelper.FilterOnlyExistedUsers(userData, testData, reader, riscore);
+                DBImporterHelper.FilterOnlyExistedUsers(userData, testData, reader);
                 CloseSQLConnection();
                 WriteToFile(writer, testData);
                 CopyFromFileAndSendToKafka(array[3]);
@@ -80,15 +74,15 @@ namespace RedOwl_Simulator
                 switch (args[3])
                 {
                     case "EXTERNAL":
-                        DBImporterHelper.ScanOnlyExternalUsers(testData, reader, riscore, user_limit);
+                        DBImporterHelper.ScanOnlyExternalUsers(testData, reader, user_limit);
                         break;
 
                     case "INTERNAL":
-                        DBImporterHelper.ScanOnlyInternalUsers(testData, reader, riscore, user_limit);
+                        DBImporterHelper.ScanOnlyInternalUsers(testData, reader, user_limit);
                         break;
 
                     default:
-                        DBImporterHelper.ScanAllUsers(testData, reader, riscore, user_limit);
+                        DBImporterHelper.ScanAllUsers(testData, reader, user_limit);
                         break;
 
                 }
@@ -100,10 +94,7 @@ namespace RedOwl_Simulator
             }
             Console.WriteLine("\n\n\n\n\n\n\t\t\t\t\t\t****************************WAIT FOR TRANFERING COMLETE****************************\n\n\n\n\n\n\t\t\t\t\t\t");
 
-
-
             Console.WriteLine("\n\n\n\n\n\n\t\t\t\t\t\t****************************DONE!!!****************************\n\n\n\n\n\n\t\t\t\t\t\t");
-
 
         }
 

@@ -7,6 +7,22 @@ namespace RedOwl_Simulator
     public static class DBImporterHelper
     {
 
+        internal static void ValidateIfEmailExistInDB(string userEmail, int new_RiskLevel, List<DataJson> testData, SqlDataReader reader)
+        {
+            bool found = false;
+            while (reader.Read()&&!found)
+            {
+                if (reader.GetString(5) == userEmail)
+                {
+                    CreateJsonObjectFromUserInputedData(testData, reader, new_RiskLevel);
+                    found = true;
+                }
+
+            }
+            if (!found)
+                Console.WriteLine("\n\n\n\n\\t\t\t\t\t++++++++++++++The email: " + userEmail + "  doesn't exist!++++++++++++++");
+        }
+
 
         public static void FilterOnlyExistedUsers(string[] userData, List<DataJson> testData, SqlDataReader reader)
         {

@@ -27,9 +27,9 @@ namespace RedOwl_Simulator
             List<DataJson> testData;          
             writer = new StreamWriter(FileLocation);
             testData = new List<DataJson>();
-
+            Console.ReadLine();
             if (args[0] == "-?")                          //      arg[0]    arg[1]       arg[2]                arg[3]                     arg[4]                    arg[5]               
-                Console.WriteLine("\n\nUsing:RedOwl Simulator.exe [SQL IP] [SQL USER] [ [Password] [EXTERNAL/INTERNAL/All users to scan] [Kafka IP:port]  [Number of users should be downloaded from SQL] \n\n ");
+                Console.WriteLine("\n\nUsing:RedOwl Simulator.exe [SQL IP] [SQL USER] [ [Password] [EXTERNAL/INTERNAL/All users to scan] [Kafka IP:port]  [Number of users should be downloaded from SQL] \n\n or Using:RedOwl Simulator.exe [manual]      - for edditing risk level from cmd ");
             else if (args[0] == "manual")
 
             {
@@ -62,6 +62,17 @@ namespace RedOwl_Simulator
                 CopyFromFileAndSendToKafka(array[3]);
 
             }
+            else if(args[0]=="automation")
+            {
+                connectionTypeToSql = String.Format(@"Data Source={0},1433;Network Library=DBMSSOCN;Initial Catalog=wbsn-data-security;User ID={1};Password={2}", (args[1]), args[2], args[3]);
+                string userEmail = args[5];
+                int new_RiskLevel = Convert.ToInt16(args[6]);
+                StartSQLConnection();
+                DBImporterHelper.ValidateIfEmailExistInDB(userEmail, new_RiskLevel, testData, reader);
+                CloseSQLConnection();
+                WriteToFile(writer, testData);
+                CopyFromFileAndSendToKafka(args[4]);
+            }
             else
 
             {
@@ -92,9 +103,7 @@ namespace RedOwl_Simulator
 
 
             }
-            Console.WriteLine("\n\n\n\n\n\n\t\t\t\t\t\t****************************WAIT FOR TRANFERING COMLETE****************************\n\n\n\n\n\n\t\t\t\t\t\t");
 
-            Console.WriteLine("\n\n\n\n\n\n\t\t\t\t\t\t****************************DONE!!!****************************\n\n\n\n\n\n\t\t\t\t\t\t");
 
         }
 
@@ -106,6 +115,9 @@ namespace RedOwl_Simulator
 
         private static void CopyFromFileAndSendToKafka(string ip)
         {
+            Console.WriteLine("\n\n\n\n\n\n\t\t\t\t\t\t****************************WAIT FOR TRANFERING COMLETE****************************\n\n\n\n\n\n\t\t\t\t\t\t");
+
+            
             KafkaClientHelper producer = new KafkaClientHelper();
 
             producer.ConfigKafkaProducer(ip); //args[4] 
@@ -113,6 +125,7 @@ namespace RedOwl_Simulator
             string jsonFile = File.ReadAllText(FileLocation);
             JArray jsonArray = JArray.Parse(jsonFile);
             producer.SendDataToKafka("ENTITY_RISK_LEVEL", jsonArray);
+            Console.WriteLine("\n\n\n\n\n\n\t\t\t\t\t\t\t****************************DONE!!!****************************\n\n\n\n\n\n\t\t\t\t\t\t");
         }
 
         private static void CloseSQLConnection()
@@ -134,6 +147,8 @@ namespace RedOwl_Simulator
         {
             writer.Write(JsonConvert.SerializeObject(TestData, Newtonsoft.Json.Formatting.Indented));
         }
+
+        
 
 
     }

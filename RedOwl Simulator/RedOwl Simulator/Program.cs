@@ -24,12 +24,14 @@ namespace RedOwl_Simulator
         static void Main(string[] args)
         {
             StreamWriter writer;
-            List<DataJson> testData;          
+            List<DataJson> testData;
+            List<RiskScore> riscore;
+            riscore = new List<RiskScore>();
             writer = new StreamWriter(FileLocation);
             testData = new List<DataJson>();
-            Console.ReadLine();
+            riscore.Add(new RiskScore("_global_", 0.81));
             if (args[0] == "-?")                          //      arg[0]    arg[1]       arg[2]                arg[3]                     arg[4]                    arg[5]               
-                Console.WriteLine("\n\nUsing:RedOwl Simulator.exe [SQL IP] [SQL USER] [ [Password] [EXTERNAL/INTERNAL/All users to scan] [Kafka IP:port]  [Number of users should be downloaded from SQL] \n\n or Using:RedOwl Simulator.exe [manual]      - for edditing risk level from cmd ");
+                Console.WriteLine("\n\nUsing:RedOwl Simulator.exe [SQL IP] [SQL USER] [ [Password] [EXTERNAL/INTERNAL/All users to scan] [Kafka IP:port]  [Number of users should be downloaded from SQL] \n\n or Using:RedOwl Simulator.exe [manual]      - for edditing risk level from cmd \n\n or Using:RedOwl Simulator.exe [automation] [SQL IP] [SQL USER] [Kafka IP:port] [email][new Risk level] ");
             else if (args[0] == "manual")
 
             {
@@ -37,7 +39,7 @@ namespace RedOwl_Simulator
                 Console.WriteLine("\n\n\n\nEnter [SQL IP] [SQL USER] [Password] [Kafka IP:port]");
                 string conectionSQL = Console.ReadLine();
                 string[] array = conectionSQL.Split(' ');
-                
+
                 Console.Write("Enter number of user IDs you want to send to Kafka  ");
                 int count = Convert.ToInt16(Console.ReadLine());
                 string[] userData;
@@ -56,10 +58,8 @@ namespace RedOwl_Simulator
 
                 }
                 StartSQLConnection();
-                DBImporterHelper.FilterOnlyExistedUsers(userData, testData, reader);
-                CloseSQLConnection();
-                WriteToFile(writer, testData);
-                CopyFromFileAndSendToKafka(array[3]);
+                DBImporterHelper.FilterOnlyExistedUsers(userData, testData, reader, riscore);
+                FinalizeAndSendToKafka(writer, testData, array[3]);
 
             }
             else if(args[0]=="automation")
@@ -68,10 +68,8 @@ namespace RedOwl_Simulator
                 string userEmail = args[5];
                 int new_RiskLevel = Convert.ToInt16(args[6]);
                 StartSQLConnection();
-                DBImporterHelper.ValidateIfEmailExistInDB(userEmail, new_RiskLevel, testData, reader);
-                CloseSQLConnection();
-                WriteToFile(writer, testData);
-                CopyFromFileAndSendToKafka(args[4]);
+                DBImporterHelper.ValidateIfEmailExistInDB(userEmail, new_RiskLevel, testData, reader, riscore);
+                FinalizeAndSendToKafka(writer, testData, args[4]);
             }
             else
 
@@ -85,26 +83,31 @@ namespace RedOwl_Simulator
                 switch (args[3])
                 {
                     case "EXTERNAL":
-                        DBImporterHelper.ScanOnlyExternalUsers(testData, reader, user_limit);
+                        DBImporterHelper.ScanOnlyExternalUsers(testData, reader, user_limit, riscore);
                         break;
 
                     case "INTERNAL":
-                        DBImporterHelper.ScanOnlyInternalUsers(testData, reader, user_limit);
+                        DBImporterHelper.ScanOnlyInternalUsers(testData, reader, user_limit, riscore);
                         break;
 
                     default:
-                        DBImporterHelper.ScanAllUsers(testData, reader, user_limit);
+                        DBImporterHelper.ScanAllUsers(testData, reader, user_limit, riscore);
                         break;
 
                 }
-                CloseSQLConnection();
-                WriteToFile(writer, testData);
-                CopyFromFileAndSendToKafka(args[4]);
+                FinalizeAndSendToKafka(writer, testData, args[4]);
 
 
             }
 
 
+        }
+
+        private static void FinalizeAndSendToKafka(StreamWriter writer, List<DataJson> testData, string ip)
+        {
+            CloseSQLConnection();
+            WriteToFile(writer, testData);
+            CopyFromFileAndSendToKafka(ip);
         }
 
         private static void WriteToFile(StreamWriter writer, List<DataJson> testData)

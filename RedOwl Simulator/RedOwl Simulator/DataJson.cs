@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 namespace RedOwl_Simulator
 {
     public class DataJson
@@ -52,6 +54,7 @@ namespace RedOwl_Simulator
                 risk_level = value;
             }
         }
+        public List<RiskScore> RiskScores { get; set; }
 
         public DataJson(string userId, string timestamp, int riskLevel)
         {
@@ -60,4 +63,4 @@ namespace RedOwl_Simulator
             this.timestamp = timestamp;
         }
     }
-}
+        public DataJson(string userId, string timestamp, int riskLevel, List<RiskScore> RiskScores)

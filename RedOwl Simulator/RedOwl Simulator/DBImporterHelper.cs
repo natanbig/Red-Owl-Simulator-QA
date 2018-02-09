@@ -12,15 +12,15 @@ namespace RedOwl_Simulator
             bool found = false;
             while (reader.Read()&&!found)
             {
-                if (reader.GetString(5) == userEmail)
+                if (reader.GetString(5) == userEmail && reader.GetInt32(12) != 0)
                 {
-                    CreateJsonObjectFromUserInputedData(testData, reader, new_RiskLevel,riscore);
+                    CreateJsonObjectFromUserInputdData(testData, reader, new_RiskLevel,riscore);
                     found = true;
                 }
 
             }
             if (!found)
-                Console.WriteLine("\n\n\n\n\\t\t\t\t\t++++++++++++++The email: " + userEmail + "  doesn't exist!++++++++++++++");
+                Console.WriteLine("\n\n\n\n\\t\t\t\t\t++++++++++++++The email: " + userEmail + "  doesn't exist or user is not a RAP user!++++++++++++++");
         }
 
 
@@ -34,7 +34,7 @@ namespace RedOwl_Simulator
                     if (reader.GetString(0) == element.Substring(0, element.Length - 2))
                     {
                         int user_Defined_RL = Convert.ToInt32(element.Substring(element.Length-1,1));
-                        CreateJsonObjectFromUserInputedData(testData, reader, user_Defined_RL,riscore);
+                        CreateJsonObjectFromUserInputdData(testData, reader, user_Defined_RL,riscore);
                         remainingCount--;
                     }
 
@@ -51,7 +51,7 @@ namespace RedOwl_Simulator
             
             while (reader.Read())
             {
-                if ((reader.GetString(1) == "EXTERNAL")&&(reader.GetString(3)!= "DELETED"))
+                if ((reader.GetString(1) == "EXTERNAL")&&(reader.GetString(3)!= "DELETED")&&(reader.GetInt32(12) != 0))
                 {
                     CreateJsonObjectFromScanningDB(testData, reader, rnd,riscore);
                     user_limit--;
@@ -72,7 +72,7 @@ namespace RedOwl_Simulator
             while (reader.Read())
             {
 
-                if ((reader.GetString(1) == "INTERNAL") && (reader.GetString(3) != "DELETED"))
+                if ((reader.GetString(1) == "INTERNAL") && (reader.GetString(3) != "DELETED")&&(reader.GetInt32(12) != 0))
                 {
                     CreateJsonObjectFromScanningDB(testData, reader, rnd, riscore);
                     user_limit--;
@@ -84,13 +84,34 @@ namespace RedOwl_Simulator
             }
         }
 
+        internal static void ValidateFileUsersExistsInDB(List<string> usersAndRL, List<DataJson> testData, SqlDataReader reader, List<RiskScore> riscore)
+        {
+            for (int index = 0; index < usersAndRL.Count - 1; index = index + 2)
+            {
+                while (reader.Read())
+                 {
+                    if (reader.GetString(3) != "DELETED" && reader.GetInt32(12) != 0 && reader.GetString(0) == usersAndRL[index])
+                    {
+                        CreateJsonObjectFromUserInputdData(testData, reader, Convert.ToInt32(usersAndRL[index + 1]), riscore);
+                        Console.WriteLine("\n\n\t\tThe UserID = " + usersAndRL[index] + " FOUND!!!");
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("\n\n\t\t+++++++++++++++The UserID = " + usersAndRL[index] + " does not exist in Data Base");
+                    }
+
+                 }
+            }
+        }
+
         public static void  ScanAllUsers(List<DataJson> testData, SqlDataReader reader,  int user_limit, List<RiskScore> riscore)
         {
             Random rnd = new Random();
 
             while (reader.Read())
             {
-                if (reader.GetString(3) != "DELETED")
+                if (reader.GetString(3) != "DELETED" && reader.GetInt32(12) != 0)
                 {
                     CreateJsonObjectFromScanningDB(testData, reader, rnd, riscore);
                     user_limit--;
@@ -113,7 +134,7 @@ namespace RedOwl_Simulator
 
         }
 
-        private static void CreateJsonObjectFromUserInputedData(List<DataJson> testData, SqlDataReader reader, int user_Defined_RL, List<RiskScore> riscore)
+        private static void CreateJsonObjectFromUserInputdData(List<DataJson> testData, SqlDataReader reader, int user_Defined_RL, List<RiskScore> riscore)
         {
             Console.WriteLine("{0}", reader.GetString(0));
             testData.Add(new DataJson(reader.GetString(0),

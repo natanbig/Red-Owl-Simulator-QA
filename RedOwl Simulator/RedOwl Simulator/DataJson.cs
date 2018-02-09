@@ -62,5 +62,18 @@ namespace RedOwl_Simulator
             this.risk_level = riskLevel;
             this.timestamp = timestamp;
         }
-    }
         public DataJson(string userId, string timestamp, int riskLevel, List<RiskScore> RiskScores)
+        {
+            this.user_id = userId;
+            this.risk_level = riskLevel;
+            this.timestamp = timestamp;
+            this.RiskScores = RiskScores;
+
+        }
+
+
+    }
+
+
+
+    }

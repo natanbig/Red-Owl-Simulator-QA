@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.IO;
 
 namespace RedOwl_Simulator
 {
@@ -102,7 +103,24 @@ namespace RedOwl_Simulator
                     }
 
                  }
+
             }
+            usersAndRL.Clear();
+            
+        }
+
+        public static void ImportDBToCSVFile(SqlDataReader reader, StreamWriter copyFromDB)
+        {
+            while (reader.Read())
+            {
+                if (reader.GetString(3) != "DELETED" && reader.GetInt32(12) != 0)
+                {
+                    copyFromDB.WriteLine(reader.GetString(0));
+                }
+
+            }
+            copyFromDB.Flush();
+            copyFromDB.Dispose();
         }
 
         public static void  ScanAllUsers(List<DataJson> testData, SqlDataReader reader,  int user_limit, List<RiskScore> riscore)

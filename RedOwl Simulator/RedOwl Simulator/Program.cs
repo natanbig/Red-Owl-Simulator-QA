@@ -76,8 +76,14 @@ namespace RedOwl_Simulator
             }
             else if(args[0]=="fromfile")
             {
+                Console.ReadLine();
                 connectionTypeToSql = String.Format(@"Data Source={0},1433;Network Library=DBMSSOCN;Initial Catalog=wbsn-data-security;User ID={1};Password={2}", (args[1]), args[2], args[3]);
-                csvReader = new StreamReader(String.Format(UsersRiskLevelFileLocation + @"\" + args[5]));
+                if (args.Length == 5)
+                {
+                    csvReader = new StreamReader(String.Format(UsersRiskLevelFileLocation + @"\importFromDB.csv"));
+                }
+                else
+                    csvReader = new StreamReader(String.Format(UsersRiskLevelFileLocation + @"\" + args[5]));
                 int count = 0;
                 List<string> usersAndRL = new List<string>();
                 Console.WriteLine("\t\tThe following Users ID  and Risk Levels were imported from csv file: \t\t\n\n");
@@ -94,6 +100,19 @@ namespace RedOwl_Simulator
                 StartSQLConnection();
                 DBImporterHelper.ValidateFileUsersExistsInDB(usersAndRL, testData, reader, riscore);
                 FinalizeAndSendToKafka(writer, testData, args[4]);
+                csvReader.Close();
+                csvReader.Dispose();
+            }
+
+            else if (args[0] == "createcsv")
+            {
+                StreamWriter copyFromDB = new StreamWriter(Directory.GetCurrentDirectory()+@"\importFromDB.csv");
+                Console.WriteLine("\n\n\n====================Starting to download user ID's from Data Base========================== ");
+                connectionTypeToSql = String.Format(@"Data Source={0},1433;Network Library=DBMSSOCN;Initial Catalog=wbsn-data-security;User ID={1};Password={2}", (args[1]), args[2], args[3]);
+                StartSQLConnection();
+                DBImporterHelper.ImportDBToCSVFile(reader, copyFromDB);
+                Console.WriteLine("\n\n\n====================Importing completed!!!========================== ");
+                Console.WriteLine("\n\n\n*********Your csv file located in  " + Directory.GetCurrentDirectory() + @"\importFromDB.csv");
             }
             else
 

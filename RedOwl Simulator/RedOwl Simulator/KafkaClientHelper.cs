@@ -27,7 +27,6 @@ namespace RedOwl_Simulator
 
                 data = JObject.Parse(jsonArray[i].ToString());
                 client.SendMessageAsync(topic, new[] { new Message(Convert.ToString(data)) }).Wait();
-                //Thread.Sleep(300);
             }
             using (client) { };
         }

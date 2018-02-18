@@ -94,7 +94,7 @@ namespace RedOwl_Simulator
                     if (reader.GetString(3) != "DELETED" && reader.GetInt32(12) != 0 && reader.GetString(0) == usersAndRL[index])
                     {
                         CreateJsonObjectFromUserInputdData(testData, reader, Convert.ToInt32(usersAndRL[index + 1]), riscore);
-                        Console.WriteLine("\n\n\t\tThe UserID = " + usersAndRL[index] + " FOUND!!!");
+                        Console.WriteLine("\nThe UserID = " + usersAndRL[index] + " FOUND!!!" + "\tuserName = "+reader.GetString(9) + "\tRiskLevel = " + reader.GetInt32(12));
                         break;
                     }
                     else
@@ -154,7 +154,7 @@ namespace RedOwl_Simulator
 
         private static void CreateJsonObjectFromUserInputdData(List<DataJson> testData, SqlDataReader reader, int user_Defined_RL, List<RiskScore> riscore)
         {
-            Console.WriteLine("{0}", reader.GetString(0));
+            
             testData.Add(new DataJson(reader.GetString(0),
             DateTime.Now.ToString("MM-dd-yyyyThh:mm:ssZ"),
             user_Defined_RL, riscore));

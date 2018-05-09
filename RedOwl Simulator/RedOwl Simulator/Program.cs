@@ -33,8 +33,9 @@ namespace RedOwl_Simulator
             writer = new StreamWriter(FileLocation);
             testData = new List<DataJson>();
             riscore.Add(new RiskScore("_global_", 0.81));
+
             if (args[0] == "-?")                          //      arg[0]    arg[1]       arg[2]                arg[3]                     arg[4]                    arg[5]               
-                Console.WriteLine("\n\nUsing:RedOwl Simulator.exe [SQL IP] [SQL USER] [ [Password] [EXTERNAL/INTERNAL/All users to scan] [Kafka IP:port]  [Number of users should be downloaded from SQL] \n\n or Using:RedOwl Simulator.exe [manual]      - for edditing risk level from cmd \n\n or Using:RedOwl Simulator.exe [automation] [SQL IP] [SQL USER] [SQL PASSWORD] [Kafka IP:port] [email][new Risk level]\n\n Using RedOwl Simulator.exe [fromfile] [SQL IP] [SQL USER] [SQL PASSWORD] [Kafka IP:port] [file name] - send users ID and Risk Level of users from csv file ((file should be in same directory with exe file))");
+                Console.WriteLine("\n\nUsing:RedOwl Simulator.exe [SQL IP] [SQL USER] [ [Password] [EXTERNAL/INTERNAL/All users to scan] [Kafka IP:port]  [Number of users should be downloaded from SQL] \n\n or Using:RedOwl Simulator.exe [manual]      - for edditing risk level from cmd \n\n or Using:RedOwl Simulator.exe [automation] [SQL IP] [SQL USER] [SQL PASSWORD] [Kafka IP:port] [email][new Risk level]\n\n or Using RedOwl Simulator.exe [fromfile] [SQL IP] [SQL USER] [SQL PASSWORD] [Kafka IP:port] [file name] - send users ID and Risk Level of users from csv file (file should be in same directory with exe file) \n\n or RedOwl Simulator.exe [createcsv][SQL IP] [SQL USER] [SQL PASSWORD] - import userIDs from data base");
             else if (args[0] == "manual")
 
             {
@@ -74,9 +75,9 @@ namespace RedOwl_Simulator
                 DBImporterHelper.ValidateIfEmailExistInDB(userEmail, new_RiskLevel, testData, reader, riscore);
                 FinalizeAndSendToKafka(writer, testData, args[4]);
             }
-            else if(args[0]=="fromfile")
+            else if(args[0]=="fromfile" || args[0]=="notvalid")
             {
-                Console.ReadLine();
+                string option = args[0];
                 connectionTypeToSql = String.Format(@"Data Source={0},1433;Network Library=DBMSSOCN;Initial Catalog=wbsn-data-security;User ID={1};Password={2}", (args[1]), args[2], args[3]);
                 if (args.Length == 5)
                 {
@@ -98,7 +99,7 @@ namespace RedOwl_Simulator
                     count = count + 2;
                 }
                 StartSQLConnection();
-                DBImporterHelper.ValidateFileUsersExistsInDB(usersAndRL, testData, reader, riscore);
+                DBImporterHelper.ValidateFileUsersExistsInDB(usersAndRL, testData, reader, riscore, option);
                 FinalizeAndSendToKafka(writer, testData, args[4]);
                 csvReader.Close();
                 csvReader.Dispose();

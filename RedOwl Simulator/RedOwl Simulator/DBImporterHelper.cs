@@ -85,16 +85,22 @@ namespace RedOwl_Simulator
             }
         }
 
-        internal static void ValidateFileUsersExistsInDB(List<string> usersAndRL, List<DataJson> testData, SqlDataReader reader, List<RiskScore> riscore)
+        internal static void ValidateFileUsersExistsInDB(List<string> usersAndRL, List<DataJson> testData, SqlDataReader reader, List<RiskScore> riscore, string option)
         {
             for (int index = 0; index < usersAndRL.Count - 1; index = index + 2)
             {
                 while (reader.Read())
                  {
-                    if (reader.GetString(3) != "DELETED" && reader.GetInt32(12) != 0 && reader.GetString(0) == usersAndRL[index])
+                    if (reader.GetString(3) != "DELETED" && reader.GetInt32(12) != 0 && reader.GetString(0) == usersAndRL[index] && option=="fromfile")
                     {
                         CreateJsonObjectFromUserInputdData(testData, reader, Convert.ToInt32(usersAndRL[index + 1]), riscore);
                         Console.WriteLine("\nThe UserID = " + usersAndRL[index] + " FOUND!!!" + "\tuserName = "+reader.GetString(9) + "\tRiskLevel = " + reader.GetInt32(12));
+                        break;
+                    }
+                    else if (option == "notvalid")
+                    {
+                        CreateJsonObjectFromUserInputdData(testData, reader, Convert.ToInt32(usersAndRL[index + 1]), riscore);
+                        Console.WriteLine("\nThe UserID = " + usersAndRL[index] + " FOUND!!!" + "\tuserName = " + reader.GetString(9) + "\tRiskLevel = " + reader.GetInt32(12));
                         break;
                     }
                     else

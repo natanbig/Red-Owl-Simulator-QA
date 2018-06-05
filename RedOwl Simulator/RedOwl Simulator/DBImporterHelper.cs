@@ -91,7 +91,7 @@ namespace RedOwl_Simulator
             {
                 while (reader.Read())
                  {
-                    if (reader.GetString(3) != "DELETED" && reader.GetInt32(12) != 0 && reader.GetString(0) == usersAndRL[index] && option=="fromfile")
+                    if (reader.GetString(3) != "DELETED" && reader.GetInt32(12) != 0 && reader.GetString(0) == usersAndRL[index] && ((option=="fromfile")||(option== "sendandchangerl")))
                     {
                         CreateJsonObjectFromUserInputdData(testData, reader, Convert.ToInt32(usersAndRL[index + 1]), riscore);
                         Console.WriteLine("\nThe UserID = " + usersAndRL[index] + " FOUND!!!" + "\tuserName = "+reader.GetString(9) + "\tRiskLevel = " + reader.GetInt32(12));
@@ -166,7 +166,6 @@ namespace RedOwl_Simulator
             user_Defined_RL, riscore));
 
         }
-
 
     }
 }

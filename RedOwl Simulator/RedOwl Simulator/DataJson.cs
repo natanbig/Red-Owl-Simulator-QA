@@ -71,7 +71,11 @@ namespace RedOwl_Simulator
 
         }
 
-
+        public DataJson(string user_id, int risk_level)
+        {
+            this.user_id = user_id;
+            this.risk_level = risk_level;
+        }
     }
 
 

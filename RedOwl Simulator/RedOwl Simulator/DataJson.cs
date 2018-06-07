@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 namespace RedOwl_Simulator
 {
-    public class DataJson
+    public class DataJson : IEquatable<DataJson>,IComparable<DataJson>
     {
 
 
@@ -75,6 +75,22 @@ namespace RedOwl_Simulator
         {
             this.user_id = user_id;
             this.risk_level = risk_level;
+        }
+
+        public bool Equals(DataJson other)
+        {
+            if (ReferenceEquals(other, null))
+                return false;
+            if (ReferenceEquals(this, other))
+                return true;
+            return User_id == User_id;
+        }
+
+        public int CompareTo(DataJson other)
+        {
+            if (ReferenceEquals(other, null))
+                return 1;
+            return User_id.CompareTo(other.User_id);
         }
     }
 

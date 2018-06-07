@@ -4,12 +4,14 @@ using KafkaNet;
 using Newtonsoft.Json.Linq;
 using System.Threading;
 using KafkaNet.Protocol;
+using System.Collections.Generic;
 
 namespace RedOwl_Simulator
 {
     public class KafkaClientHelper
     {
-        private  Producer client;
+        
+        private Producer client;
         public void ConfigKafkaProducer(string ip)
         {
             string ip_Kafka = String.Format("http://{0}", ip);
@@ -20,13 +22,21 @@ namespace RedOwl_Simulator
 
         public void SendDataToKafka(string kafkaTopic, JArray jsonArray)
         {
+            
             string topic = kafkaTopic;
-            dynamic data;
+            List<string> data = new List<string>();
             for (int i = 0; i < jsonArray.Count; i++)
             {
 
-                data = JObject.Parse(jsonArray[i].ToString());
-                client.SendMessageAsync(topic, new[] { new Message(Convert.ToString(data)) }).Wait();
+               
+                data.Add(Convert.ToString(JObject.Parse(jsonArray[i].ToString())));
+                
+                {
+                    
+                    client.SendMessageAsync(topic, new[] { new Message(data[i].ToString()) });
+                    if (i % 150 == 0 || jsonArray.Count-1==i)
+                        Thread.Sleep(500);                       
+                }
             }
             using (client) { };
         }
@@ -34,8 +44,8 @@ namespace RedOwl_Simulator
         ~KafkaClientHelper()
         {
 
-            
-            
-       }
+
+
+        }
     }
 }

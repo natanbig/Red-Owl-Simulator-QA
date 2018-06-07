@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
-using System.Linq;
 
 namespace RedOwl_Simulator
 {
@@ -170,16 +169,27 @@ namespace RedOwl_Simulator
 
         public static List<DataJson> CompareBetweenSentEntitiesAndDbEntities(List<DataJson> testData, SqlDataReader reader)
         {
+            
             List<DataJson> notUpdatedUsers = new List<DataJson>();
+            List<DataJson> copiedFromDb = new List<DataJson>();
             while (reader.Read())
             {
-                foreach (DataJson element in testData)
+                copiedFromDb.Add((new DataJson(reader.GetString(0), reader.GetInt32(12))));
+
+            }
+            if (testData.Count != copiedFromDb.Count)
+            {
+                for (int i = 0; i < testData.Count; i++)
                 {
-                    if (element.User_id == reader.GetString(0))
+                    for (int loop = 0; loop < copiedFromDb.Count; loop++)
                     {
-                        if (element.Risk_level != reader.GetInt32(12))
-                            notUpdatedUsers.Add(new DataJson(element.User_id, element.Risk_level));
-                                                    
+                        if (testData[i].User_id == copiedFromDb[loop].User_id)
+                            break;
+                        if ((testData[i].User_id != copiedFromDb[loop].User_id) && (loop == copiedFromDb.Count - 1))
+                        {
+                            notUpdatedUsers.Add(new DataJson(testData[i].User_id, testData[i].Risk_level));
+                        }
+
                     }
                 }
             }
